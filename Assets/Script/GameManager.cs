@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            bulletObject.SetActive(true);
+            //bulletObject.SetActive(true);
         }
         if (Input.GetKeyDown(KeyCode.E))
         {

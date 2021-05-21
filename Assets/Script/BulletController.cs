@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
- 
+
 public class BulletController : MonoBehaviour
 {
     public Rigidbody rigidbodyBullet;
@@ -9,10 +9,11 @@ public class BulletController : MonoBehaviour
 
     public Transform parentObject;
     public float movementForce;
-    Vector3 startingRot=new Vector3(-17.159f,5f,-3.884f);
+    Vector3 startingRot = new Vector3(-17.159f, 5f, -3.884f);
     Vector3 startingPos;
     private GameManager gameManager;
     private ScopeSystem scopeSystem;
+    public FixedJoystick fixedJoystick;
 
 
     void OnDisable()
@@ -26,7 +27,7 @@ public class BulletController : MonoBehaviour
     }
     void OnEnable()
     {
-        
+
         gameManager.currentState = GameManager.gameState.fire;
         scopeSystem.isScoped = false;
         rigidbodyBullet.isKinematic = false;
@@ -43,7 +44,7 @@ public class BulletController : MonoBehaviour
         scopeSystem = FindObjectOfType<ScopeSystem>();
         gameManager = FindObjectOfType<GameManager>();
 
-     }
+    }
 
     void FixedUpdate()
     {
@@ -51,10 +52,16 @@ public class BulletController : MonoBehaviour
     }
     void Update()
     {
+
         if (gameManager.currentState == GameManager.gameState.fire)
         {
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
+
+            Vector3 direction = transform.forward * fixedJoystick.Vertical + transform.right * fixedJoystick.Horizontal;
+
             if (Input.GetAxis("Vertical") > 0 && Input.GetAxis("Vertical") < 0.2f ||
-                Input.GetAxis("Vertical") < 0 && Input.GetAxis("Vertical") > -0.2f||
+                Input.GetAxis("Vertical") < 0 && Input.GetAxis("Vertical") > -0.2f ||
                 Input.GetAxis("Horizontal") > 0 && Input.GetAxis("Vertical") < 0.2f ||
                 Input.GetAxis("Horizontal") < 0 && Input.GetAxis("Vertical") > -0.2f)
             {
@@ -66,9 +73,11 @@ public class BulletController : MonoBehaviour
 
                 movementForce = 0.2f;
             }
+            transform.Translate(direction.x, direction.y, Time.deltaTime);
         }
 
-        BulletTranslate();
+        
+        //BulletTranslate();
     }
     void BulletTranslate()
     {
@@ -79,14 +88,15 @@ public class BulletController : MonoBehaviour
         yMovement *= Time.deltaTime;
         xMovement *= Time.deltaTime;
 
-        transform.Translate(xMovement, yMovement,Time.deltaTime);
+        transform.Translate(xMovement, yMovement, Time.deltaTime);
     }
     void OnCollisionEnter(Collision other)
     {
-        if(other.gameObject.tag=="enemy"){
+        if (other.gameObject.tag == "enemy")
+        {
 
 
-            other.gameObject.GetComponent<EnemyController>().health-=
+            other.gameObject.GetComponent<EnemyController>().health -=
                 other.gameObject.GetComponent<EnemyController>().healthReduce;
         }
         this.transform.SetParent(parentObject.transform);
